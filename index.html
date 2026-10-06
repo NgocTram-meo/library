@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Library — a cozy personal virtual bookshelf for your collection of stories."
+    />
+    <title>Library</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="leaf-layer" id="leafLayer" aria-hidden="true"></div>
+
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <p class="brand-kicker">A small room for every story</p>
+          <h1>LIBRARY</h1>
+          <p class="subtitle">“My little collection of stories.”</p>
+        </div>
+
+        <div class="header-actions">
+          <button
+            id="themeToggle"
+            class="ghost-button"
+            type="button"
+            aria-label="Toggle autumn theme"
+          >
+            Autumn Night
+          </button>
+
+          <div class="menu-wrap">
+            <button
+              id="libraryMenuButton"
+              class="ghost-button menu-button"
+              type="button"
+              aria-label="Open library menu"
+              aria-expanded="false"
+            >
+              Menu
+            </button>
+
+            <div id="libraryDropdown" class="dropdown hidden" role="menu" aria-label="Library menu">
+              <button type="button" id="exportLibraryBtn" class="menu-item">Export Library</button>
+              <button type="button" id="importLibraryBtn" class="menu-item">Import Library</button>
+              <button type="button" id="clearSampleBooksBtn" class="menu-item danger">Clear Sample Books</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="toolbar" aria-label="Library controls">
+        <label class="search-field" for="searchInput">
+          <span class="sr-only">Search books</span>
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Search books or authors..."
+            autocomplete="off"
+          />
+        </label>
+
+        <label class="genre-field" for="genreFilter">
+          <span class="sr-only">Filter by genre</span>
+          <select id="genreFilter" aria-label="Filter books by genre"></select>
+        </label>
+
+        <button id="addBookBtn" class="primary-button" type="button">ADD BOOK</button>
+      </section>
+
+      <main class="library-view" aria-live="polite">
+        <div class="bookshelf-shell">
+          <button id="prevShelfBtn" class="nav-button nav-prev" type="button" aria-label="Previous bookshelf">
+            ← Previous Shelf
+          </button>
+
+          <div class="bookshelf-stage">
+            <div id="bookshelfContainer" class="bookshelf-container" aria-live="polite"></div>
+          </div>
+
+          <button id="nextShelfBtn" class="nav-button nav-next" type="button" aria-label="Next bookshelf">
+            Next Shelf →
+          </button>
+        </div>
+
+        <div id="searchStatus" class="search-status" aria-live="polite"></div>
+      </main>
+    </div>
+
+    <div id="bookModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-panel form-modal" role="dialog" aria-modal="true" aria-labelledby="bookModalTitle">
+        <div class="modal-header">
+          <h2 id="bookModalTitle">Add Book</h2>
+          <button class="icon-close" type="button" data-close-modal="true" aria-label="Close form">×</button>
+        </div>
+
+        <form id="bookForm" novalidate>
+          <input id="bookId" type="hidden" />
+
+          <div class="form-grid">
+            <div class="field-group two-columns">
+              <label>
+                <span>Book title</span>
+                <input id="bookTitle" name="title" type="text" />
+              </label>
+
+              <label>
+                <span>Author</span>
+                <input id="bookAuthor" name="author" type="text" />
+              </label>
+            </div>
+
+            <div class="field-group two-columns">
+              <label>
+                <span>Genre</span>
+                <input id="bookGenre" name="genre" list="genreSuggestions" type="text" />
+                <datalist id="genreSuggestions"></datalist>
+              </label>
+
+              <label>
+                <span>Shelf position</span>
+                <select id="bookShelfPosition" name="shelfPosition">
+                  <option value="auto">Auto</option>
+                  <option value="0">Top shelf</option>
+                  <option value="1">Middle shelf</option>
+                  <option value="2">Bottom shelf</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="field-group">
+              <label>
+                <span>Description</span>
+                <textarea id="bookDescription" name="description" rows="4"></textarea>
+              </label>
+            </div>
+
+            <div class="field-group image-grid">
+              <label class="image-upload-field">
+                <span>Cover image</span>
+                <input id="coverImageInput" name="coverImage" type="file" accept="image/*" />
+              </label>
+
+              <label class="image-upload-field">
+                <span>Spine image</span>
+                <input id="spineImageInput" name="spineImage" type="file" accept="image/*" />
+              </label>
+            </div>
+
+            <div class="field-group preview-row">
+              <div class="preview-card">
+                <span>Cover preview</span>
+                <img id="coverPreview" alt="Selected cover preview" />
+              </div>
+
+              <div class="preview-card">
+                <span>Spine preview</span>
+                <img id="spinePreview" alt="Selected spine preview" />
+              </div>
+            </div>
+
+            <div class="field-group three-columns">
+              <label>
+                <span>Pages</span>
+                <input id="bookPages" name="pages" type="number" min="1" step="1" />
+              </label>
+
+              <label>
+                <span>Height (mm)</span>
+                <input id="bookHeight" name="height" type="number" min="1" step="1" />
+              </label>
+
+              <label>
+                <span>Width (mm)</span>
+                <input id="bookWidth" name="width" type="number" min="1" step="1" />
+              </label>
+            </div>
+
+            <div class="field-group three-columns">
+              <label>
+                <span>Thickness (mm)</span>
+                <input id="bookThickness" name="thickness" type="number" min="1" step="1" />
+              </label>
+
+              <label>
+                <span>Unit</span>
+                <select id="dimensionUnit" name="dimensionUnit">
+                  <option value="mm">mm</option>
+                  <option value="cm">cm</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Reading progress</span>
+                <input id="bookProgress" name="progress" type="number" min="0" max="100" step="1" />
+              </label>
+            </div>
+
+            <div class="field-group two-columns">
+              <label>
+                <span>Rating out of 10</span>
+                <input id="bookRating" name="rating" type="number" min="0" max="10" step="0.5" />
+              </label>
+
+              <label>
+                <span>Book color</span>
+                <div class="color-field">
+                  <input id="bookColor" name="color" type="color" value="#8b3a2d" />
+                  <span id="colorLabel">#8b3a2d</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div id="formErrors" class="form-errors" aria-live="polite"></div>
+
+          <div class="form-actions">
+            <button id="cancelBookBtn" class="secondary-button" type="button">Cancel</button>
+            <button id="saveBookBtn" class="primary-button" type="submit">Save Book</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="bookDetailModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-panel detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+        <button class="icon-close detail-close" type="button" data-close-modal="true" aria-label="Close details">×</button>
+
+        <div id="bookDetailContent" class="detail-content"></div>
+      </div>
+    </div>
+
+    <div id="confirmModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-panel confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h2 id="confirmTitle">Remove this book?</h2>
+        <p id="confirmMessage">Remove this book from your library?</p>
+
+        <div class="confirm-actions">
+          <button id="cancelDeleteBtn" class="secondary-button" type="button">CANCEL</button>
+          <button id="confirmDeleteBtn" class="danger-button" type="button">REMOVE BOOK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <input id="importFileInput" type="file" accept="application/json" hidden />
+
+    <script src="script.js"></script>
+  </body>
+</html>

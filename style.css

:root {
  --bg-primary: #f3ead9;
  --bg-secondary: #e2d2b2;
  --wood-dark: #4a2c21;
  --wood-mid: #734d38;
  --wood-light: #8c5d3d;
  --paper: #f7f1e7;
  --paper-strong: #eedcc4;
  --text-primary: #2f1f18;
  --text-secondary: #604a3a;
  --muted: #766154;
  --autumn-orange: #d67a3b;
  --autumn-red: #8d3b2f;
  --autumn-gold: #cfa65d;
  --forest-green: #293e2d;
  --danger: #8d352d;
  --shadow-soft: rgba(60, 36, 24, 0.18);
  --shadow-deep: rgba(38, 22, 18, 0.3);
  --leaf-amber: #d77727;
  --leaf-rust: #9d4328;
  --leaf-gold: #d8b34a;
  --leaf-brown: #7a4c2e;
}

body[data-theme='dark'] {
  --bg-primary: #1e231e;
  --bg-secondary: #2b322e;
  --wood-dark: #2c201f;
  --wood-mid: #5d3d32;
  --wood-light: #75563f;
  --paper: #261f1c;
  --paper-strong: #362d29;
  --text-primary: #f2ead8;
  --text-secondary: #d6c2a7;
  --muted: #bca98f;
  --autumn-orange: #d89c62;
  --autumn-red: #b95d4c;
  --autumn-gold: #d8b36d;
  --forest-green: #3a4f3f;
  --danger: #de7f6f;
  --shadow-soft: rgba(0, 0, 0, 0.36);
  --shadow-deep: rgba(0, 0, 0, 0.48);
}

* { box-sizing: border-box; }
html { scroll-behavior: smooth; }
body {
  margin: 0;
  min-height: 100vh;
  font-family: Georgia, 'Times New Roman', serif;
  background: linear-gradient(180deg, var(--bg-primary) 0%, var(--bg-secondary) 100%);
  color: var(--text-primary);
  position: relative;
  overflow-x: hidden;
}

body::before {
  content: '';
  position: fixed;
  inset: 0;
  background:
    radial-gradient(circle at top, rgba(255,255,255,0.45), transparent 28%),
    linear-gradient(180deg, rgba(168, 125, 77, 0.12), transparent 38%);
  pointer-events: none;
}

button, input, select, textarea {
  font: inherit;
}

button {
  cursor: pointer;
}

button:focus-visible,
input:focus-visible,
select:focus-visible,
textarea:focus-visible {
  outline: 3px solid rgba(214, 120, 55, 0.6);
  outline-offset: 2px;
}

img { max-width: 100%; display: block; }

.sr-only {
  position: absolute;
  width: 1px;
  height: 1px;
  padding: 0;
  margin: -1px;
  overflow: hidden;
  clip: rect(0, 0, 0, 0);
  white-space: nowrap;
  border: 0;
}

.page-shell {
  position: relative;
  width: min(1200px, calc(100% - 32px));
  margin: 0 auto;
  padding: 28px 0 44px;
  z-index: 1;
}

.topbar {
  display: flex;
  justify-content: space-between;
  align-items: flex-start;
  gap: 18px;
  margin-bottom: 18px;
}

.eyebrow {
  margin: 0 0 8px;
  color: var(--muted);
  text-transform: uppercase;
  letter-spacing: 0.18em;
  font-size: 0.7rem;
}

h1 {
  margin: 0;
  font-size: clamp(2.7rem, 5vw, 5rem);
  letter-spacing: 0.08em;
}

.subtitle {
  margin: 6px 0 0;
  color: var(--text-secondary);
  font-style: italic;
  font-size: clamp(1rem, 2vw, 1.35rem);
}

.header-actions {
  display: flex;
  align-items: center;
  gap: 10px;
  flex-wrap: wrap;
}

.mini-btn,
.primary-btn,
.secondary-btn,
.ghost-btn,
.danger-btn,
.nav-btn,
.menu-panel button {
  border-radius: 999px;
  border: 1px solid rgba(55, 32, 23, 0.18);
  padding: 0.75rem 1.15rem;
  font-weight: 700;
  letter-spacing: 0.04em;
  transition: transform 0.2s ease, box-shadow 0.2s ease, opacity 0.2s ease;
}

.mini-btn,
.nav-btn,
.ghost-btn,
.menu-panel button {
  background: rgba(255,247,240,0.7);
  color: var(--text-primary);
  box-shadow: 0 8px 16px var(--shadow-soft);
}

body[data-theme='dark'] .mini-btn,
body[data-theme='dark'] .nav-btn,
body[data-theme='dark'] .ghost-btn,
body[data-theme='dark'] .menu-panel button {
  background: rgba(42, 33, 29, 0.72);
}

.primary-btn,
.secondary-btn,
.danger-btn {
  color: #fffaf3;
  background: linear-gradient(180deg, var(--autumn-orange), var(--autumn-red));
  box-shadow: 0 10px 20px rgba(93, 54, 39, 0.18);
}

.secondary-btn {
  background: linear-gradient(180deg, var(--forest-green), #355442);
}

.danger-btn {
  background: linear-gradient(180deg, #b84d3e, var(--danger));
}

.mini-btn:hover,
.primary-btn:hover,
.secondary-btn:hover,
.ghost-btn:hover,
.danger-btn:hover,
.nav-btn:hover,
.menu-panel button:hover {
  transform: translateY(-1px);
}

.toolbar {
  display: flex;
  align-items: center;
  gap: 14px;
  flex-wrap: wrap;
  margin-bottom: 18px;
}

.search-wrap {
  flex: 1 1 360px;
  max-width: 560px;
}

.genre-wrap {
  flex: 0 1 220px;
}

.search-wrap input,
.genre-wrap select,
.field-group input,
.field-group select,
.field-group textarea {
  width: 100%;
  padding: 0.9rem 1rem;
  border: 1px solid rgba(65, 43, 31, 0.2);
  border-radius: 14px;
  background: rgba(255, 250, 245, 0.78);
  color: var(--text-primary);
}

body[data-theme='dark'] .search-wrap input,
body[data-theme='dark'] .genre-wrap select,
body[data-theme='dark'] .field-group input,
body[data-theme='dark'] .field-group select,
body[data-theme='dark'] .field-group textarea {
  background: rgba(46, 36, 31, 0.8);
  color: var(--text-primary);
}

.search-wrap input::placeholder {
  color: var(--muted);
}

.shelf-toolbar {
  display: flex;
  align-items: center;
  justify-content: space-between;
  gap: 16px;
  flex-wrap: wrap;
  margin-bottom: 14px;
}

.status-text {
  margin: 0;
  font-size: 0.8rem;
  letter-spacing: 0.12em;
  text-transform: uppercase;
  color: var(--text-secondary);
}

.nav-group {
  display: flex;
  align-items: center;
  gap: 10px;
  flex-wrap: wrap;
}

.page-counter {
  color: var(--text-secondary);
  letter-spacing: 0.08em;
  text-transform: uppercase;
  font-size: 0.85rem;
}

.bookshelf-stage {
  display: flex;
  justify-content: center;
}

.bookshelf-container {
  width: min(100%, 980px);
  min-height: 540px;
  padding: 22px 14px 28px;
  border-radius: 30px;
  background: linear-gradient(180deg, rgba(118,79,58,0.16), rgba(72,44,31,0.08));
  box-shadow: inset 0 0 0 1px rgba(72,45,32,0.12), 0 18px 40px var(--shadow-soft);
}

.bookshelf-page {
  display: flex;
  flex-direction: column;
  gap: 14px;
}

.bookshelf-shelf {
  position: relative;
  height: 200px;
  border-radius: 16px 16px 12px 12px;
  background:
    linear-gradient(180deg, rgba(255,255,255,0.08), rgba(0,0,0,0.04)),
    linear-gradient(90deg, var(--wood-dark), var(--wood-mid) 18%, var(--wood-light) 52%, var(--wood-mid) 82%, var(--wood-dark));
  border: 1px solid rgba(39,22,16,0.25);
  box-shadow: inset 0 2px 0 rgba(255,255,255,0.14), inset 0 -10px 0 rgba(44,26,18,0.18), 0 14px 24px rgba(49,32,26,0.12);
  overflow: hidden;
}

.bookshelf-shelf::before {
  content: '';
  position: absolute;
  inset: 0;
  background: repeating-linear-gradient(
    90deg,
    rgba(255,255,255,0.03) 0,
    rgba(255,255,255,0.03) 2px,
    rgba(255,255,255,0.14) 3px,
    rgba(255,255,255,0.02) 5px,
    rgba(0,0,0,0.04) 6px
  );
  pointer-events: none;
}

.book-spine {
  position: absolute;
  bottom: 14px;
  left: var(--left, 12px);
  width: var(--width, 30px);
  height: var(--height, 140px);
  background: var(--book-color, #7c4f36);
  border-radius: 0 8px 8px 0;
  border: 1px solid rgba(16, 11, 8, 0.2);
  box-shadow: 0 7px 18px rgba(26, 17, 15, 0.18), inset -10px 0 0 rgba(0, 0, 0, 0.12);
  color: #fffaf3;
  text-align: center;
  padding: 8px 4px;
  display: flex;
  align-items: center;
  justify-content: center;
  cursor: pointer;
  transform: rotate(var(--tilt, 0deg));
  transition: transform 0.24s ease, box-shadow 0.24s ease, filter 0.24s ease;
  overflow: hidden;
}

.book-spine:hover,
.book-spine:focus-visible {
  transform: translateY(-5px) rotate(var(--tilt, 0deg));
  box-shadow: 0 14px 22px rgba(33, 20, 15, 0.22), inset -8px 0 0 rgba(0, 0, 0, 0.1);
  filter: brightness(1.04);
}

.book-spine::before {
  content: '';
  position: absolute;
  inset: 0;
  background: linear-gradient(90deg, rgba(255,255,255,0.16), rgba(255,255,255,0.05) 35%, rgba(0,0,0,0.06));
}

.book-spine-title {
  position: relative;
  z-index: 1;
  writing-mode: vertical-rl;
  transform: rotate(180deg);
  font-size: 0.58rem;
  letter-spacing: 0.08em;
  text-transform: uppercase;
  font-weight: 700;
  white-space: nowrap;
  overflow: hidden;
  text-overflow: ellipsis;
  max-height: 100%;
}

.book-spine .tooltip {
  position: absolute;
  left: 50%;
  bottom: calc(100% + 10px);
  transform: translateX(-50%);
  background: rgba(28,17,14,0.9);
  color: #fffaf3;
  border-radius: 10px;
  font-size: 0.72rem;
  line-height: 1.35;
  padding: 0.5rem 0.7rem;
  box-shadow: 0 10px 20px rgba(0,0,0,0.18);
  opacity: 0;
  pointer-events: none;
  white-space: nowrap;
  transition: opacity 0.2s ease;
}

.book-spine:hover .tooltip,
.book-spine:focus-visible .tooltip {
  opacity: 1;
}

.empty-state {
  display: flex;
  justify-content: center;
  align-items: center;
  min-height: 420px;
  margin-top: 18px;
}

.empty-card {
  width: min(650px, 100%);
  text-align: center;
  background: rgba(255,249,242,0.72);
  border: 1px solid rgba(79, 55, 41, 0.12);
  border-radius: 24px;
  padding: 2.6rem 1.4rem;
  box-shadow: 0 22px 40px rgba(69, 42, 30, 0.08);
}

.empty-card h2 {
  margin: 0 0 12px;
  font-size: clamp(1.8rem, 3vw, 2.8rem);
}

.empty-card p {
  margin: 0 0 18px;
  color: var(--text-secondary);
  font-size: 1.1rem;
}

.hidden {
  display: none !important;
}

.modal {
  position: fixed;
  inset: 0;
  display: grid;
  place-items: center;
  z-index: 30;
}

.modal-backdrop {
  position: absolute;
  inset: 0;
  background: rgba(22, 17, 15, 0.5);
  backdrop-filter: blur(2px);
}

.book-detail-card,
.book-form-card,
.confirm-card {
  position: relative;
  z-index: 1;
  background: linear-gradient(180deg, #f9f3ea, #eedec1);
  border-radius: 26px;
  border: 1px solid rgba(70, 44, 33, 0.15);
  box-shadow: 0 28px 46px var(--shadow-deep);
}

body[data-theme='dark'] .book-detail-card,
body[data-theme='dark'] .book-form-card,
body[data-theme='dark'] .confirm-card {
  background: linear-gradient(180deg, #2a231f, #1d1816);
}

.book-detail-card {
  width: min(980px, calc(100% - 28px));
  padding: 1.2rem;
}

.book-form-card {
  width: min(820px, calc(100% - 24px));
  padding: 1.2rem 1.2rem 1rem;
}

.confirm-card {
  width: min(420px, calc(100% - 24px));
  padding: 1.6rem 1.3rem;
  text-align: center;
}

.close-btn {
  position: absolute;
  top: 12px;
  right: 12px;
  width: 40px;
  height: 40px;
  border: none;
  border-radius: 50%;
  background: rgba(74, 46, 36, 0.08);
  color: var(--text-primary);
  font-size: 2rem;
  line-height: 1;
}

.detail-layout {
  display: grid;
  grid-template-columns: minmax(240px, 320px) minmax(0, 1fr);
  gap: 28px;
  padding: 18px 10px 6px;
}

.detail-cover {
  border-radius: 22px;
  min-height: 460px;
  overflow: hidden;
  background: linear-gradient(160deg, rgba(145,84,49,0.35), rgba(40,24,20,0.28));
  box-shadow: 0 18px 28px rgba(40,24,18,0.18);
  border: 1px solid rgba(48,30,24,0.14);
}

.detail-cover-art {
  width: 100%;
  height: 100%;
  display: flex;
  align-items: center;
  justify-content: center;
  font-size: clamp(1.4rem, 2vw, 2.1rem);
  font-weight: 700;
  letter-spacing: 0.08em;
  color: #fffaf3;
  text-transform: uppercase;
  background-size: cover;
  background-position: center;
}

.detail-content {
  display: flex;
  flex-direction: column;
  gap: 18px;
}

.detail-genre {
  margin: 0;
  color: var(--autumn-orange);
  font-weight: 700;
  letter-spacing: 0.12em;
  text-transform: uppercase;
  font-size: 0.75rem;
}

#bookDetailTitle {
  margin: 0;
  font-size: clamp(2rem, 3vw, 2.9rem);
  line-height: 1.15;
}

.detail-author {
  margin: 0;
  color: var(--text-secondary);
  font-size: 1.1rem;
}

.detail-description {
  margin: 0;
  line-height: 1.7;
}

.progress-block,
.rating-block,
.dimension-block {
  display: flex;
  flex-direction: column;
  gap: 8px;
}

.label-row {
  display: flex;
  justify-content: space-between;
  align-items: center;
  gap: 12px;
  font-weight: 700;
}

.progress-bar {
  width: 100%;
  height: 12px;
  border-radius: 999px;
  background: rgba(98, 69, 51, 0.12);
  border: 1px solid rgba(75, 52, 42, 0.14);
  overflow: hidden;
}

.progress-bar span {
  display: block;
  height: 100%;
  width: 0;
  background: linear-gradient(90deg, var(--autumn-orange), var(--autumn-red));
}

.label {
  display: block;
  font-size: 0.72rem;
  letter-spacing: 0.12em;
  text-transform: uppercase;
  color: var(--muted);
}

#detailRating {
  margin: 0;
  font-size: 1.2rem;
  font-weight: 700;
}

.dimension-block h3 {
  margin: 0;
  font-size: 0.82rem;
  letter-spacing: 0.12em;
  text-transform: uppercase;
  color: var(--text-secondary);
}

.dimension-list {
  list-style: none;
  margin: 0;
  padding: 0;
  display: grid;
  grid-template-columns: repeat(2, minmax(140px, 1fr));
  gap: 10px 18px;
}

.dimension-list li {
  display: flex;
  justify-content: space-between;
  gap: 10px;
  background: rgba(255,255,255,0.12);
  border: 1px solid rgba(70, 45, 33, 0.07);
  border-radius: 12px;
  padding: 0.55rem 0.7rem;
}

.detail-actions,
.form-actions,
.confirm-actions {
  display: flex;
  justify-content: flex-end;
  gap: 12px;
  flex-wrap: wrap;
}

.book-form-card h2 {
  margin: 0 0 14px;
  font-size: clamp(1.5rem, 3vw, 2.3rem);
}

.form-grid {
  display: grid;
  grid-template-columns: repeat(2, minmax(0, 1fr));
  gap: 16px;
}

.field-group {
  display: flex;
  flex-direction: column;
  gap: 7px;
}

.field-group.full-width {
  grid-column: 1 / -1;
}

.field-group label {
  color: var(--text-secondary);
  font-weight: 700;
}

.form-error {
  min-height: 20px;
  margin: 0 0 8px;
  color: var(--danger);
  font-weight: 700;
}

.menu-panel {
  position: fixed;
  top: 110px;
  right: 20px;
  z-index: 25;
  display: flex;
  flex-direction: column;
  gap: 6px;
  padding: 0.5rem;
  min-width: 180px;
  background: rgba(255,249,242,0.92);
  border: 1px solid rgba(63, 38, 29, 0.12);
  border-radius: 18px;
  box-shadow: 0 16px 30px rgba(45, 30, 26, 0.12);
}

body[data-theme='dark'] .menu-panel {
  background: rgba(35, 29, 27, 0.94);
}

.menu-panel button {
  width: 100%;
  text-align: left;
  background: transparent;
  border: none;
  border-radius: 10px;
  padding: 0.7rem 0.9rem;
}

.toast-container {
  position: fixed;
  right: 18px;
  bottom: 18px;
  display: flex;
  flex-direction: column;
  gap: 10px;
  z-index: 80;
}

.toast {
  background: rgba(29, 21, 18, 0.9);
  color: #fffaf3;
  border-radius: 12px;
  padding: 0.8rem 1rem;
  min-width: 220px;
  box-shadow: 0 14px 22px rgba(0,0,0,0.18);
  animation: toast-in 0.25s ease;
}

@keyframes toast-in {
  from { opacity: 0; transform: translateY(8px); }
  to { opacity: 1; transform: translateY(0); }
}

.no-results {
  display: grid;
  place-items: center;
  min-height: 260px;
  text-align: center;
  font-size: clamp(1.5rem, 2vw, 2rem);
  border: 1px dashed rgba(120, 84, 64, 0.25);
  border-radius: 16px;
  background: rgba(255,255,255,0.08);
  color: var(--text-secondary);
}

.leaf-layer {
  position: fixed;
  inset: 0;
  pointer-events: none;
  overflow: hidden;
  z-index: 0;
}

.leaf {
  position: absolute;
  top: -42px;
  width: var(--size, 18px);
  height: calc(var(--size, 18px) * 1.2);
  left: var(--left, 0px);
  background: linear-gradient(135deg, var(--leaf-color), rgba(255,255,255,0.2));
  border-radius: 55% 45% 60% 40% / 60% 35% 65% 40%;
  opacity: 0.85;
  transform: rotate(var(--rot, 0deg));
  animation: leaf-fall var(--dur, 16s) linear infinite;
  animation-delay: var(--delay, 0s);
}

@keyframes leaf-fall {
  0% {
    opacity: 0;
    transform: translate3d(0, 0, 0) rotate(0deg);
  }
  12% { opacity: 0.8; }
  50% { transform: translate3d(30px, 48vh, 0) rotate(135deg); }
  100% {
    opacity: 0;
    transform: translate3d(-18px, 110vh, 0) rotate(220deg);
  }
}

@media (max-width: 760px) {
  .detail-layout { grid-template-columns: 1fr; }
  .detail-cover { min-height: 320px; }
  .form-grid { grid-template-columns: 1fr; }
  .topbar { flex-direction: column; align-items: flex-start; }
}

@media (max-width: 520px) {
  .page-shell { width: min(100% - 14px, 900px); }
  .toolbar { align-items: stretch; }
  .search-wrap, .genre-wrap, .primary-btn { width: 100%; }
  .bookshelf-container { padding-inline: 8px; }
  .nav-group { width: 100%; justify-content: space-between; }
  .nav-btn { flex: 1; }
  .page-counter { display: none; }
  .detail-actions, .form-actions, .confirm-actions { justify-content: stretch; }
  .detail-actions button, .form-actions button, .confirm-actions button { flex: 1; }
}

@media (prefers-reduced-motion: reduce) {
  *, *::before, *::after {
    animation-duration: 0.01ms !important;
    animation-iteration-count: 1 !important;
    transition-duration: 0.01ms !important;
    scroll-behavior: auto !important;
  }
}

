@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library</title>
+    <meta name="description" content="Library — A personal virtual bookshelf." />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="leaf-layer" aria-hidden="true" id="leafLayer"></div>
+
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">Autumn notes</div>
+          <h1>LIBRARY</h1>
+          <p class="subtitle">“My little collection of stories.”</p>
+        </div>
+
+        <div class="header-actions">
+          <button id="themeToggle" type="button" class="mini-btn">Autumn Night</button>
+          <button id="menuToggle" type="button" class="mini-btn" aria-expanded="false">☰ Menu</button>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <label class="search-wrap">
+          <span class="sr-only">Search books or authors</span>
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Search books or authors..."
+            aria-label="Search books or authors"
+          />
+        </label>
+
+        <label class="genre-wrap">
+          <span class="sr-only">Genre filter</span>
+          <select id="genreFilter" aria-label="Filter by genre">
+            <option value="all">All Genres</option>
+          </select>
+        </label>
+
+        <button id="addBookBtn" class="primary-btn" type="button">ADD BOOK</button>
+      </div>
+
+      <div class="shelf-toolbar">
+        <p id="statusText" class="status-text">0 books found</p>
+        <div class="nav-group">
+          <button id="prevPageBtn" class="nav-btn" type="button" aria-label="Previous bookshelf">← Previous Shelf</button>
+          <span id="pageCounter" class="page-counter">Bookshelf 1 of 1</span>
+          <button id="nextPageBtn" class="nav-btn" type="button" aria-label="Next bookshelf">Next Shelf →</button>
+        </div>
+      </div>
+
+      <main class="bookshelf-stage">
+        <div id="bookshelfContainer" class="bookshelf-container" aria-live="polite"></div>
+      </main>
+
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-card">
+          <h2>Your shelves are waiting.</h2>
+          <p>Add your first book and begin building your library.</p>
+          <button id="emptyAddBtn" type="button" class="primary-btn">ADD YOUR FIRST BOOK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="menuPanel" class="menu-panel hidden" aria-label="Library menu">
+      <button id="exportBtn" type="button">Export Library</button>
+      <button id="importBtn" type="button">Import Library</button>
+      <button id="clearSamplesBtn" type="button">Clear Sample Books</button>
+    </div>
+
+    <input id="importInput" type="file" accept="application/json" hidden />
+
+    <div id="bookModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="bookDetailTitle">
+      <div class="modal-backdrop" data-close="bookModal"></div>
+      <div class="book-detail-card">
+        <button type="button" class="close-btn" data-close="bookModal" aria-label="Close details">×</button>
+
+        <div class="detail-layout">
+          <div id="detailCover" class="detail-cover"></div>
+
+          <div class="detail-content">
+            <p id="detailGenre" class="detail-genre"></p>
+            <h2 id="bookDetailTitle">Book Title</h2>
+            <p id="detailAuthor" class="detail-author"></p>
+            <p id="detailDescription" class="detail-description"></p>
+
+            <div class="progress-block">
+              <div class="label-row">
+                <span>Reading Progress</span>
+                <strong id="detailProgressLabel">0%</strong>
+              </div>
+              <div class="progress-bar">
+                <span id="detailProgressBar"></span>
+              </div>
+            </div>
+
+            <div class="rating-block">
+              <span class="label">Rating</span>
+              <p id="detailRating">0.0 / 10</p>
+            </div>
+
+            <div class="dimension-block">
+              <h3>Dimensions</h3>
+              <ul id="detailDimensions" class="dimension-list"></ul>
+            </div>
+
+            <div class="detail-actions">
+              <button id="editBookBtn" type="button" class="secondary-btn">EDIT BOOK</button>
+              <button id="deleteBookBtn" type="button" class="danger-btn">DELETE BOOK</button>
+              <button type="button" class="ghost-btn" data-close="bookModal">CLOSE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bookFormModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <div class="modal-backdrop" data-close="bookFormModal"></div>
+      <div class="book-form-card">
+        <button type="button" class="close-btn" data-close="bookFormModal" aria-label="Close form">×</button>
+
+        <h2 id="formTitle">Add a new book</h2>
+
+        <form id="bookForm" novalidate>
+          <div id="formError" class="form-error" aria-live="polite"></div>
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label for="titleInput">Book title</label>
+              <input id="titleInput" name="title" type="text" required />
+            </div>
+
+            <div class="field-group">
+              <label for="authorInput">Author</label>
+              <input id="authorInput" name="author" type="text" required />
+            </div>
+
+            <div class="field-group">
+              <label for="genreInput">Genre</label>
+              <input id="genreInput" name="genre" type="text" list="genreOptions" required />
+              <datalist id="genreOptions">
+                <option value="Fantasy"></option>
+                <option value="Romance"></option>
+                <option value="Mystery"></option>
+                <option value="Thriller"></option>
+                <option value="Science Fiction"></option>
+                <option value="History"></option>
+                <option value="Psychology"></option>
+                <option value="Business"></option>
+                <option value="Economics"></option>
+                <option value="Self-help"></option>
+                <option value="Philosophy"></option>
+                <option value="Biography"></option>
+                <option value="Technology"></option>
+                <option value="Other"></option>
+              </datalist>
+            </div>
+
+            <div class="field-group full-width">
+              <label for="descriptionInput">Description</label>
+              <textarea id="descriptionInput" name="description" rows="4"></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="coverInput">Cover image</label>
+              <input id="coverInput" type="file" accept="image/*" />
+            </div>
+
+            <div class="field-group">
+              <label for="spineInput">Spine image</label>
+              <input id="spineInput" type="file" accept="image/*" />
+            </div>
+
+            <div class="field-group">
+              <label for="pagesInput">Number of pages</label>
+              <input id="pagesInput" type="number" min="1" step="1" required />
+            </div>
+
+            <div class="field-group">
+              <label for="heightInput">Height</label>
+              <input id="heightInput" type="number" min="1" step="1" required />
+            </div>
+
+            <div class="field-group">
+              <label for="widthInput">Width</label>
+              <input id="widthInput" type="number" min="1" step="1" required />
+            </div>
+
+            <div class="field-group">
+              <label for="thicknessInput">Thickness</label>
+              <input id="thicknessInput" type="number" min="1" step="1" placeholder="Optional" />
+            </div>
+
+            <div class="field-group">
+              <label for="unitInput">Unit</label>
+              <select id="unitInput">
+                <option value="mm">mm</option>
+                <option value="cm">cm</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="progressInput">Reading progress (%)</label>
+              <input id="progressInput" type="number" min="0" max="100" step="1" value="0" />
+            </div>
+
+            <div class="field-group">
+              <label for="ratingInput">Rating (0–10)</label>
+              <input id="ratingInput" type="number" min="0" max="10" step="0.5" value="0" />
+            </div>
+
+            <div class="field-group">
+              <label for="colorInput">Book color</label>
+              <input id="colorInput" type="color" value="#8d5a3a" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="ghost-btn" data-close="bookFormModal">CANCEL</button>
+            <button type="submit" class="primary-btn">SAVE BOOK</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="deleteModal" class="modal hidden" role="dialog" aria-modal="true"><?xml version="1.0" encoding="UTF-8"?>
+      <div class="modal-backdrop" data-close="deleteModal"></div>
+      <div class="confirm-card">
+        <h3>Remove this book from your library?</h3>
+        <div class="confirm-actions">
+          <button type="button" class="ghost-btn" data-close="deleteModal">CANCEL</button>
+          <button id="confirmDeleteBtn" type="button" class="danger-btn">REMOVE BOOK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
